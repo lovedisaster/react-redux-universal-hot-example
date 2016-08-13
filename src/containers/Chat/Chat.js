@@ -1,6 +1,8 @@
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
 import MessageBox from './MessagesBox/MessagesBox';
+// import MessagesForm from './MessagesForm/MessagesForm';
+// import Test from './MessagesForm/Test';
 
 @connect(
   state => ({user: state.auth.user})
@@ -52,7 +54,7 @@ export default class Chat extends Component {
 
   _handleOnChange = (event) => {
     const msg = this.__runMesssgeFilters(event.target.value);
-    this.setState({message: msg});
+    return this.setState({message: msg});
   }
 
   __runMesssgeFilters = (msg) => {
