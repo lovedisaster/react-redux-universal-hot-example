@@ -1,8 +1,7 @@
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
 import MessageBox from './MessagesBox/MessagesBox';
-// import MessagesForm from './MessagesForm/MessagesForm';
-// import Test from './MessagesForm/Test';
+import {PWords} from './PWords';
 
 @connect(
   state => ({user: state.auth.user})
@@ -19,12 +18,18 @@ export default class Chat extends Component {
   };
 
   componentDidMount() {
+    const windowheight = parseInt(window.innerHeight, 10) - 50;
+
     if (socket) {
       socket.on('msg', this._onMessageReceived);
       setTimeout(() => {
         socket.emit('history', {offset: 0, length: 100});
       }, 100);
     }
+
+    // Adjust to chat area height to window height
+    document.getElementById('message-outter-container').style.height = String(windowheight) + 'px';
+    document.getElementById('message-inner-container').style.height = document.getElementById('message-outter-container').style.height;
   }
 
   componentWillUnmount() {
@@ -33,13 +38,13 @@ export default class Chat extends Component {
     }
   }
 
-  _onMessageReceived = (data) => {
+  _onMessageReceived = data => {
     const messages = this.state.messages;
     messages.push(data);
     this.setState({messages});
   }
 
-  _handleSubmit = (event) => {
+  _handleSubmit = event => {
     event.preventDefault();
 
     const msg = this.state.message;
@@ -52,18 +57,16 @@ export default class Chat extends Component {
     });
   }
 
-  _handleOnChange = (event) => {
+  _handleOnChange = event => {
     const msg = this.__runMesssgeFilters(event.target.value);
     return this.setState({message: msg});
   }
 
-  __runMesssgeFilters = (msg) => {
-    return this.__messegeFilter(this.__emotesFilter(msg));
-  }
+  __runMesssgeFilters = msg => this.__messageFilter(this.__emotesFilter(msg));
 
-  __messegeFilter = msg => {
-    // Could be abstracted to somewhere as a configuration file
-    const profanityWords = ['potato', 'REA', 'carbs', 'real estate agent'];
+  __messageFilter = msg => {
+    // Could be abstracted somewhere as a configuration file
+    const profanityWords = PWords;
     let finalMsg = msg;
     profanityWords.forEach(value => {
       if (value === msg) {
@@ -87,8 +90,8 @@ export default class Chat extends Component {
     return (
       <div className={style.chat}>
         {user &&
-        <div>
-          <div className="container">
+        <div id="message-outter-container" className={style.outter}>
+          <div id="message-inner-container" className={style.inner + ' container'}>
             <MessageBox messages={this.state.messages} user={user}/>
           </div>
           <form className={style.msgform} onSubmit={this._handleSubmit}>
